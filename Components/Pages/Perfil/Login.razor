@@ -1,18 +1,24 @@
-﻿@using SistemaBiblioteca.Components.Layout
-
+﻿
 @page "/"
-@layout LoginLayout
+
+@layout Layout.LoginLayout
 
 @inject LoginService LoginService
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
-<MudPaper Class="pa-6 mx-auto mt-12" MaxWidth="400px">
-    <MudText Typo="Typo.h5" Class="mb-4">Iniciar</MudText>
-    <MudTextField @bind-Value="login.Email" Label="Email" Required="true" />
-    <MudTextField @bind-Value="login.Password" Label="Senha" InputType="InputType.Password" Required="true" />
-    <MudButton OnClick="HandleLogin" Color="Color.Primary" Class="mt-4" FullWidth="true">Entrar</MudButton>
-</MudPaper>
+<div class="mt-5">
+    <MudPaper Class="pa-6 mx-auto mt-12" MaxWidth="400px">
+
+        <MudText Typo="Typo.h5" Class="mb-4">Login</MudText>
+        <MudTextField @bind-Value="login.Email" Label="Email" Required="true" />
+
+        <MudTextField @bind-Value="login.Password" Label="Senha" InputType="InputType.Password" Required="true" />
+        <MudButton OnClick="HandleLogin" Color="Color.Primary" Class="mt-4" FullWidth="true">Entrar</MudButton>
+
+    </MudPaper>
+</div>
+
 
 @code {
     private LoginDTO login = new();

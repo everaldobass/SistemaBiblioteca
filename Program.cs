@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using SistemaBiblioteca.Components;
 using SistemaBiblioteca.Data;
+using SistemaBiblioteca.Services;
 
 
 namespace SistemaBiblioteca
@@ -21,7 +22,7 @@ namespace SistemaBiblioteca
             builder.Services.AddMudServices();
             builder.Services.AddTransient<SeedDb>();
 
-            //builder.Services.AddScoped<LoginService>();
+            builder.Services.AddScoped<LoginService>();
             //builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
          

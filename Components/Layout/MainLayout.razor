@@ -8,17 +8,15 @@
 
 <MudLayout>
     <MudAppBar Elevation="1">
-
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h5" Class="ml-3">Biblioteca</MudText>
         <MudSpacer />
-
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
         <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
-
     </MudAppBar>
 
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <NavMenu />
     </MudDrawer>
 
     <MudMainContent Class="mt-16 pa-4">
@@ -33,8 +31,6 @@
     <a class="dismiss">🗙</a>
 </div>
 
-
-<!--Código para os modos Dark e Withe -->
 @code {
     private bool _drawerOpen = true;
     private bool _isDarkMode = true;
@@ -156,8 +152,6 @@
         GrayLighter = "#23233a",
         OverlayLight = "#23233a80",
     };
-
-
 
     public string DarkLightModeButtonIcon => _isDarkMode switch
     {

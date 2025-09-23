@@ -5,22 +5,29 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<MudLayout>
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Biblioteca</MudText>
-        <MudSpacer />
-        <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
-    </MudAppBar>
+<div class="background-image">
 
-    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-    </MudDrawer>
+    <MudLayout>
+        <MudAppBar Elevation="1">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            <MudText Typo="Typo.h5" Class="ml-3">Biblioteca</MudText>
+            <MudSpacer />
+            <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
+            <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+        </MudAppBar>
 
-    <MudMainContent Class="mt-16 pa-4">
-        @Body
-    </MudMainContent>
-</MudLayout>
+
+
+        @* <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+    </MudDrawer> *@
+
+        <MudMainContent Class="mt-16 pa-4">
+            @Body
+        </MudMainContent>
+    </MudLayout>
+
+</div>
+
 
 
 <div id="blazor-error-ui">
