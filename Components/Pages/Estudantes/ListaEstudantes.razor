@@ -1,0 +1,171 @@
+﻿@page "/estudantes"
+
+@using SistemaBiblioteca.Models
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-10">
+    <MudText Typo="Typo.h4" Class="text-center mb-6">Lista de Estudante</MudText>
+    <MudButton OnClick="AdicionarEstudante" Color="Color.Primary" EndIcon="@Icons.Material.Filled.Add" Class="mb-4">
+
+        Criar Estudante
+    </MudButton>
+
+
+    @if (loading)
+    {
+        <Loading />
+    }
+    else
+    {
+
+        <MudTable Items="@estudantes" Filter="new Func<Estudante, bool>(FilterFunc1)" Hover="true" Bordered="true" Striped="true" Dense="true">
+            <ToolBarContent>
+                <MudTextField @bind-Value="filtro" Placeholder="Buscar por nome"
+                             Adornment="Adornment.Start"
+                             AdornmentIcon="@Icons.Material.Filled.Search"
+                             IconSize="Size.Medium"
+                             Class="mt-0" />
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Nome</MudTh>
+                <MudTh>Codigo</MudTh>
+                <MudTh>Ficha de Criação</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Nome">@context.Nome</MudTd>
+                <MudTd DataLabel="Email">@context.Codigo</MudTd>
+                <MudTd DataLabel="Ficha de Creação">@context.DataCriacao.ToString("dd/MM/yyyy")</MudTd>
+                <MudTd>
+                    <MudButton OnClick="() => EditarEstudante(context.Id)" Color="Color.Warning" EndIcon="@Icons.Material.Filled.Edit">Editar</MudButton>
+                    <MudButton OnClick="() => DeletarEstudante(context.Id)" Color="Color.Error" EndIcon="@Icons.Material.Filled.Delete">Deletar</MudButton>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    }
+</MudContainer>
+
+
+
+@code {
+
+    private List<Estudante> estudantes = new();
+    private string filtro = string.Empty;
+    private bool loading = true;
+
+    [Inject] private IRepository<Estudante> repository { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+    [Inject] private IDialogService DialogService { get; set; } = null!;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        var datos = await repository.GetAllAsync();
+        estudantes = datos.ToList();
+        loading = false;
+    }
+
+
+
+    private bool FilterFunc1(Estudante estudante)
+    {
+        return string.IsNullOrEmpty(filtro) || estudante.Nome.Contains(filtro, StringComparison.OrdinalIgnoreCase);
+    }
+
+
+
+    private async Task AdicionarEstudante()
+    {
+        try
+        {
+            var parameters = new DialogParameters();
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+            };
+
+            var dialog = await DialogService.ShowAsync<CriarEstudante>("", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                NavigationManager.NavigateTo("/estudantes");
+            }
+        }
+
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocorreu um error: " + ex.Message, Severity.Error);
+        }
+    }
+
+
+
+    private async Task EditarEstudante(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters { ["EstudanteId"] = id };
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+            };
+
+            var dialog = await DialogService.ShowAsync<EditarEstudante>("", parameters, options);
+            var result = await dialog.Result;
+
+
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                Snackbar.Add("Estudante atualizado com sucesso!", Severity.Success);
+                NavigationManager.NavigateTo("/estudantes");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocorreu um error: " + ex.Message, Severity.Error);
+        }
+    }
+
+
+
+
+    private async Task DeletarEstudante(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters { ["EstudanteId"] = id };
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+            };
+
+            var dialog = await DialogService.ShowAsync<DeletarEstudante>("", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                Snackbar.Add("Estudante deletado com sucesso!", Severity.Success);
+                NavigationManager.NavigateTo("/estudantes");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocorreu un error: " + ex.Message, Severity.Error);
+        }
+    }
+}

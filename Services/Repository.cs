@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 // ReSharper disable UnusedMember.Global
 namespace SistemaBiblioteca.Services
 {
+
+
     // Interfaz genérica para o CRUD
     public class Repository<T> : IRepository<T> where T : class
     {
@@ -20,12 +22,17 @@ namespace SistemaBiblioteca.Services
             _dbSet = _context.Set<T>();
         }
 
+
+
+
         // Método para adicionar uma entidade
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
+
+
 
 
         // Método para deletar uma entidade pelo ID
@@ -40,11 +47,16 @@ namespace SistemaBiblioteca.Services
         }
 
 
+
+
+
         // Método para obter todas as entidades
         public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
         }
+
+
 
 
 
@@ -59,12 +71,16 @@ namespace SistemaBiblioteca.Services
 
 
 
+
+
         // Método para atualizar uma entidade
         public async Task UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
             await _context.SaveChangesAsync();
         }
+
+
 
 
 

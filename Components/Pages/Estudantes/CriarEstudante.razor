@@ -1,0 +1,41 @@
+﻿@using SistemaBiblioteca.Models
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="@estudante" Class="pa-4">
+            <MudText Typo="Typo.h6">Criar Estudante</MudText>
+            <MudTextField @bind-Value="estudante.Nome" Label="Nome" Required="true" />
+            <MudTextField @bind-Value="estudante.Codigo" Label="Codigo" Required="true" />
+            <MudButton OnClick="@Cadastar" Color="Color.Primary">Cadastrar</MudButton>
+        </MudForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    private Estudante estudante = new Estudante();
+
+    [Inject] private IRepository<Estudante> repository { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    private MudForm form = null!;
+
+    private async Task Cadastar()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                await repository.AddAsync(estudante);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error al crear el estudiante: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+}

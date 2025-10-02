@@ -1,0 +1,50 @@
+﻿@using SistemaBiblioteca.Models
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h6" GutterBottom="true">Está seguro?</MudText>
+        <MudText Typo="Typo.body2">
+            Deseja deletar este registro?. Essa ação deleta do banco de dados. Deseja continuar?
+        </MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancelar" Color="Color.Primary" Variant="Variant.Text">Cancelar</MudButton>
+        <MudButton OnClick="Eliminar" Color="Color.Error" Variant="Variant.Filled">Deletar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+
+@code {
+    [Parameter] public int EstudanteId { get; set; }
+
+    private Estudante estudante = new Estudante();
+
+    [Inject] private IRepository<Estudante> repository { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        estudante = await repository.GetByIdAsync(EstudanteId);
+    }
+
+    private async Task Eliminar()
+    {
+        try
+        {
+            await repository.DeleteAsync(estudante.Id);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error ao deletar um estudante: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void Cancelar()
+    {
+        NavigationManager.NavigateTo("/estudantes");
+    }
+}

@@ -46,8 +46,6 @@ namespace SistemaBiblioteca
 
 
 
-
-
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
