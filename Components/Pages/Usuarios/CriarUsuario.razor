@@ -1,0 +1,42 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="@usuario" Class="pa-4">
+            <MudText Typo="Typo.h6">Criar Usuario</MudText>
+            <MudTextField @bind-Value="usuario.Nome" Label="Nome" Required="true" />
+            <MudTextField @bind-Value="usuario.Email" Label="Email" Required="true" Type="email" />
+            <MudTextField @bind-Value="usuario.Password" Label="Senha" Required="true" Type="password" />
+            
+            <MudButton OnClick="@CadastrarUsuario" Color="Color.Primary">Cadastrar</MudButton>
+        </MudForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    private Usuario usuario = new Usuario();
+
+    [Inject] private IRepository<Usuario> repository { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    private MudForm form = null!;
+
+    private async Task CadastrarUsuario()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                await repository.AddAsync(usuario);
+                Snackbar.Add("Usuario cadastrado com sucesso.", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error criar um usuario: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+}

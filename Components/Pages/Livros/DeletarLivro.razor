@@ -1,0 +1,46 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h6" GutterBottom="true">Esta certo?</MudText>
+        <MudText Typo="Typo.body2">
+            Realmente deseja excluir o usuario do banco de dados. Desejo continuar?
+        </MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancelar" Color="Color.Primary" Variant="Variant.Text">Cancelar</MudButton>
+        <MudButton OnClick="Eliminar" Color="Color.Error" Variant="Variant.Filled">Excluir</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public int LivroId { get; set; }
+
+    private Livro livro = new Livro();
+
+    [Inject] private IRepository<Livro> repository { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        livro = await repository.GetByIdAsync(LivroId);
+    }
+
+    private async Task Eliminar()
+    {
+        try
+        {
+            await repository.DeleteAsync(livro.Id);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error ao excluir um livro: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void Cancelar()
+    {
+        NavigationManager.NavigateTo("/livros");
+    }
+}

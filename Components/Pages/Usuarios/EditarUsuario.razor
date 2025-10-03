@@ -1,0 +1,64 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="@usuario" Class="pa-4">
+            <MudText Typo="Typo.h6">Editar Usuario</MudText>
+            <MudTextField @bind-Value="usuario.Nome" Label="Nome" Required="true" />
+            <MudTextField @bind-Value="usuario.Email" Label="Email" Required="true" Type="email" />
+            <MudTextField @bind-Value="usuario.Perfil" Label="Perfil" Required="true" />
+
+            <MudButton OnClick="@Editar" Color="Color.Primary">Cadastrar</MudButton>
+        </MudForm>
+    </DialogContent>
+</MudDialog>
+
+
+
+
+@code {
+    [Parameter] public int UsuarioId { get; set; }
+    private Usuario usuario = new Usuario();
+
+    [Inject] private IRepository<Usuario> Repository { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    private MudForm form = null!;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            usuario = await Repository.GetByIdAsync(UsuarioId);
+        }
+
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocorreu um erro ao Editar um Usuario: " + ex.Message, Severity.Error);
+            MudDialog.Cancel();
+        }
+    }
+
+    private async Task Editar()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                await Repository.UpdateAsync(usuario);
+                MudDialog.Close(DialogResult.Ok(usuario));
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add("Ocorreu um error ao Editar um estudante: " + ex.Message, Severity.Error);
+            }
+        }
+    }
+}
+
+

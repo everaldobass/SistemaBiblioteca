@@ -27,5 +27,6 @@
 
 ### Migration 
 - install-package MudBlazor
-- add-Migration InitialCreate
+- dotnet ef migrations remove
+- add-Migration InitialCriar
 - update-database

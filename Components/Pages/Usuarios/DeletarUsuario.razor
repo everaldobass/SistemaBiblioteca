@@ -4,76 +4,71 @@
         <MudText Typo="Typo.h6" GutterBottom="true">Você está certo?</MudText>
 
         <MudText Typo="Typo.body1">
-            Deseja continuar e excluir este cadastro do banco de dados?
+            Deseja continuar e excluir o usuário do banco de dados?
         </MudText>
 
     </DialogContent>
     <DialogActions>
 
-            <MudButton OnClick="Cancelar"
+        <MudButton OnClick="Cancelar"
                    Class="mb-2"
                    Color="Color.Primary"
-                       Variant="Variant.Filled"
-                       Style="height:45px; width:100%; font-weight:500; border-radius:5px;">
+                   Variant="Variant.Filled"
+                   Style="height:45px; width:100%; font-weight:500; border-radius:5px;">
             <MudText Typo="Typo.body1">
                 Cancelar
             </MudText>
-            </MudButton>
+        </MudButton>
 
-            <MudButton OnClick="Eliminar"
+        <MudButton OnClick="Eliminar"
                    Class="mb-2"
                    Color="Color.Error"
-                       Variant="Variant.Filled"
-                       Style="height:45px; width:100%; font-weight:500; border-radius:5px;">
+                   Variant="Variant.Filled"
+                   Style="height:45px; width:100%; font-weight:500; border-radius:5px;">
 
 
-            <MudText  Typo="Typo.body1">
-               Excluir
+            <MudText Typo="Typo.body1">
+                Excluir
             </MudText>
 
 
-            </MudButton>
-  
+        </MudButton>
+
     </DialogActions>
 </MudDialog>
 
 
 
-
-
-
 @code {
-    [Parameter] public int EstudanteId { get; set; }
+    [Parameter] public int UsuarioId { get; set; }
 
-    private Estudante estudante = new Estudante();
+    private Usuario usuario = new Usuario();
 
-    [Inject] private IRepository<Estudante> repository { get; set; } = null!;
+    [Inject] private IRepository<Usuario> repository { get; set; } = null!;
     [Inject] private ISnackbar Snackbar { get; set; } = null!;
     [Inject] private NavigationManager NavigationManager { get; set; } = null!;
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
 
-
-
     protected override async Task OnInitializedAsync()
     {
-        estudante = await repository.GetByIdAsync(EstudanteId);
+        usuario = await repository.GetByIdAsync(UsuarioId);
     }
 
     private async Task Eliminar()
     {
         try
         {
-            await repository.DeleteAsync(estudante.Id);
+            await repository.DeleteAsync(usuario.Id);
             MudDialog.Close(DialogResult.Ok(true));
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error ao deletar um estudante: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Error ao excluir o usuario: {ex.Message}", Severity.Error);
         }
     }
 
     private void Cancelar()
     {
-        NavigationManager.NavigateTo("/estudantes");
+        NavigationManager.NavigateTo("/usuarios");
     }
 }

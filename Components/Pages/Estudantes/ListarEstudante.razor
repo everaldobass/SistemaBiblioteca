@@ -51,6 +51,7 @@
                 <MudTd DataLabel="Código">@context.Codigo</MudTd>
                 <MudTd DataLabel="Ficha de Criação">@context.DataCriacao.ToString("dd/MM/yyyy")</MudTd>
                 <MudTd Class="d-flex justify-center gap-2">
+
                     <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                    Color="Color.Warning"
                                    Size="Size.Medium"
@@ -73,55 +74,6 @@
 </MudContainer>
 
 
-
-
-@* <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10">
-
-    <MudText Typo="Typo.h4" Class="text-center mb-6">Lista de Estudante</MudText>
-    <MudButton OnClick="AdicionarEstudante" Variant="Variant.Filled" Color="Color.Info" EndIcon="@Icons.Material.Filled.Save" Class="mb-4">
-        Novo Estudante
-    </MudButton>
-
-
-    @if (loading)
-    {
-        <Loading />
-    }
-    else
-    {
-
-        <MudTable Items="@estudantes" Filter="new Func<Estudante, bool>(FilterFunc1)" Hover="true" Bordered="true" Striped="true" Dense="true">
-            <ToolBarContent>
-                <MudTextField @bind-Value="filtro" Placeholder="Buscar por nome"
-                             Adornment="Adornment.Start"
-                             AdornmentIcon="@Icons.Material.Filled.Search"
-                             IconSize="Size.Medium"
-                             Class="mt-0" />
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh>Nome</MudTh>
-                <MudTh>Codigo</MudTh>
-                <MudTh>Ficha de Criação</MudTh>
-                <MudTh></MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Nome">@context.Nome</MudTd>
-                <MudTd DataLabel="Email">@context.Codigo</MudTd>
-                <MudTd DataLabel="Ficha de Creação">@context.DataCriacao.ToString("dd/MM/yyyy")</MudTd>
-                <MudTd>
-                    <MudButton OnClick="() => EditarEstudante(context.Id)" Color="Color.Warning" EndIcon="@Icons.Material.Filled.Edit">Editar</MudButton>
-                    <MudButton OnClick="() => DeletarEstudante(context.Id)" Color="Color.Error" EndIcon="@Icons.Material.Filled.Delete">Deletar</MudButton>
-                </MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager />
-            </PagerContent>
-        </MudTable>
-    }
-</MudContainer> *@
-
-
-
 @code {
 
     private List<Estudante> estudantes = new();
@@ -134,7 +86,7 @@
     [Inject] private IDialogService DialogService { get; set; } = null!;
 
 
-
+    // Load data
     protected override async Task OnInitializedAsync()
     {
         loading = true;
@@ -144,14 +96,14 @@
     }
 
 
-
+    // Filtro o nome do estudante
     private bool FilterFunc1(Estudante estudante)
     {
         return string.IsNullOrEmpty(filtro) || estudante.Nome.Contains(filtro, StringComparison.OrdinalIgnoreCase);
     }
 
 
-
+    // Adicionar um estudante
     private async Task AdicionarEstudante()
     {
         try
@@ -181,7 +133,7 @@
     }
 
 
-
+    // Editar um estudante
     private async Task EditarEstudante(int id)
     {
         try
@@ -213,7 +165,7 @@
 
 
 
-
+    // Deletar um estudante
     private async Task DeletarEstudante(int id)
     {
         try

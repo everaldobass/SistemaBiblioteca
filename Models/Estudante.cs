@@ -1,5 +1,6 @@
 ﻿namespace SistemaBiblioteca.Models
 {
+    // Classe que representa um estudante
     public class Estudante
     {
         public int Id { get; set; }

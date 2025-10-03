@@ -1,5 +1,6 @@
 ﻿namespace SistemaBiblioteca.Models
 {
+    // Classe que representa um empréstimo de livro
     public class Emprestimo
     {
         public int Id { get; set; }

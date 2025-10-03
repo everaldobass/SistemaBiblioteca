@@ -1,0 +1,212 @@
+﻿@page "/emprestimos"
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-10">
+    <MudText Typo="Typo.h4" Class="text-center mb-6">Lista de Emprestimos</MudText>
+    <MudButton OnClick="AdicionarEmprestimo" Color="Color.Primary" EndIcon="@Icons.Material.Filled.Add" Class="mb-4">
+        Novo Emprestimo
+    </MudButton>
+
+    @if (loading)
+    {
+        <Loading />
+    }
+    else
+    {
+        <MudTable Items="@emprestimos" Filter="new Func<Emprestimo, bool>(FilterFunc1)" Hover="true" Bordered="true" Striped="true" Dense="true">
+            <ToolBarContent>
+                <MudTextField @bind-Value="filtro" Placeholder="Buscar por nome"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              IconSize="Size.Medium"
+                              Class="mt-0" />
+            </ToolBarContent>
+
+            <HeaderContent>
+                <MudTh>Livro</MudTh>
+                <MudTh>Estudante</MudTh>
+                <MudTh>Data Emprestimo</MudTh>
+                <MudTh>Data Devolução</MudTh>
+                <MudTh>Status</MudTh>
+                <MudTh></MudTh>
+
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Livro">@context.Livro!.Titulo</MudTd>
+                <MudTd DataLabel="Estudante">@context.Estudante!.Nome</MudTd>
+                <MudTd DataLabel="Autor">@context.DataEmprestimo.ToString("dd/MM/yyyy")</MudTd>
+                <MudTd DataLabel="Data Publicação">@context.DataDevolucao.ToString("dd/MM/yyyy")</MudTd>
+                <MudTd DataLabel="StatusLivro">
+                    <MudChip T="string" Color="@GetEstadoColor(context.StatusLivro)" Variant="Variant.Filled" Label="true">
+                        @context.StatusLivro
+                    </MudChip>
+                </MudTd>
+                <MudTd>
+                    <MudButton OnClick="() => EditarEmprestimo(context.Id)" Color="Color.Warning" EndIcon="@Icons.Material.Filled.Edit">Editar</MudButton>
+                    <MudButton OnClick="() => Devolucion(context.Id)" Color="Color.Info" EndIcon="@Icons.Material.Filled.AssignmentReturned">Devolver</MudButton>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    }
+</MudContainer>
+
+@code {
+    private List<Emprestimo> emprestimos = [];
+    private string filtro = string.Empty;
+    private bool loading = true;
+    private Emprestimo emprestimo = new Emprestimo();
+
+    [Inject] private IRepository<Emprestimo> repository { get; set; } = null!;
+    [Inject] private IRepository<Livro> repositoryLibro { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+    [Inject] private IDialogService DialogService { get; set; } = null!;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        var datos = await repository.GetAllWithIncludesAsync(x => x.Livro!, x => x.Estudante!);
+        emprestimos = datos.OrderByDescending(x => x.Id).ToList();
+        foreach (var emprestimo in emprestimos)
+        {
+            await ValidarEstado();
+        }
+        loading = false;
+    }
+
+
+
+    private bool FilterFunc1(Emprestimo emprestimo)
+    {
+        return string.IsNullOrEmpty(filtro) || emprestimo.Livro!.Titulo.Contains(filtro, StringComparison.OrdinalIgnoreCase);
+    }
+
+
+
+
+    private async Task ValidarEstado()
+    {
+        if (emprestimo.StatusLivro == "Pendente" && emprestimo.DataDevolucao < DateTime.Now)
+        {
+            emprestimo.StatusLivro = "Vencido";
+            await repository.UpdateAsync(emprestimo);
+        }
+    }
+
+
+
+    private async Task AdicionarEmprestimo()
+    {
+        try
+        {
+            var parameters = new DialogParameters();
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+            };
+
+            var dialog = await DialogService.ShowAsync<CriarEmprestimo>("", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                NavigationManager.NavigateTo("/emprestimos");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocorreu um error: " + ex.Message, Severity.Error);
+        }
+    }
+
+
+
+    private async Task EditarEmprestimo(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters { ["EmprestimoId"] = id };
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+            };
+
+            var dialog = await DialogService.ShowAsync<EditarEmprestimo>("", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                Snackbar.Add("Atualizado com sucesso!", Severity.Success);
+                NavigationManager.NavigateTo("/emprestimos");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocorreu um error: " + ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task Devolucion(int id)
+    {
+        try
+        {
+            emprestimo = await repository.GetByIdAsync(id);
+            if (emprestimo != null)
+            {
+                emprestimo.StatusLivro = "Devolutivo";
+                emprestimo.DataDevolucao = DateTime.Now;
+                await ActualizarInventario();
+                await repository.UpdateAsync(emprestimo);
+                Snackbar.Add("Emprestimo devolução!", Severity.Success);
+                await OnInitializedAsync();
+            }
+            else
+            {
+                Snackbar.Add("Emprestimo não encontrado.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocorreu um error: " + ex.Message, Severity.Error);
+        }
+    }
+
+    private Color GetEstadoColor(string estado)
+    {
+        return estado switch
+        {
+            "Devolvido" => Color.Success,
+            "Pendente" => Color.Warning,
+            "Vencido" => Color.Error,
+            _ => Color.Default
+
+        };
+    }
+
+    private async Task ActualizarInventario()
+    {
+        try
+        {
+            var livro = await repositoryLibro.GetByIdAsync(emprestimo.LibvroId);
+            if (livro != null)
+            {
+                livro.Quantidade++;
+                await repositoryLibro.UpdateAsync(livro);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error ao atualizar o inventário: {ex.Message}", Severity.Error);
+        }
+    }
+}

@@ -1,5 +1,6 @@
 ﻿namespace SistemaBiblioteca.Models
 {
+    // Classe que representa um livro
     public class Livro
     {
         public int Id { get; set; }

@@ -1,0 +1,179 @@
+﻿@page "/usuarios"
+
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-10">
+    <MudText Typo="Typo.h4" Class="text-center mb-6">Lista de Usuarios</MudText>
+    <MudButton OnClick="CriarUsuario" Color="Color.Primary" EndIcon="@Icons.Material.Filled.Add" Class="mb-4">
+        Novo Usuário
+    </MudButton>
+
+    @if (loading)
+    {
+        <Loading />
+    }
+    else
+    {
+        <MudTable Items="@usuarios" Filter="new Func<Usuario, bool>(FilterFunc1)" Hover="true" Bordered="true" Striped="true" Dense="true">
+            <ToolBarContent>
+                <MudTextField @bind-Value="filtro" Placeholder="Buscar por nome"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              IconSize="Size.Medium"
+                              Class="mt-0" />
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Nome</MudTh>
+                <MudTh>Email</MudTh>
+                <MudTh>Data Criacao</MudTh>
+                <MudTh>Perfil</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Nome">@context.Nome</MudTd>
+                <MudTd DataLabel="Email">@context.Email</MudTd>
+                <MudTd DataLabel="Data Criacao">@context.DataCriacao.ToString("dd/MM/yyyy")</MudTd>
+                <MudTd DataLabel="Perfil">@context.Perfil</MudTd>
+                <MudTd>
+
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Warning"
+                                   Size="Size.Medium"
+                                   OnClick="() => EditarUsuario(context.Id)"
+                                   Style="border-radius:4px;" />
+
+
+                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                   Color="Color.Error"
+                                   OnClick="() => EliminarUsuario(context.Id)"
+                                   Title="Excluir usuario" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    }
+</MudContainer>
+
+@code {
+    private List<Usuario> usuarios = new();
+    private string filtro = string.Empty;
+    private bool loading = true;
+
+    [Inject] private IRepository<Usuario> repository { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+    [Inject] private IDialogService DialogService { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        var datos = await repository.GetAllAsync();
+        usuarios = datos.ToList();
+        loading = false;
+    }
+
+    private bool FilterFunc1(Usuario element) => FilterFunc(element, filtro);
+
+    private bool FilterFunc(Usuario element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Nome.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+
+
+    private async Task CriarUsuario()
+    {
+        try
+        {
+            var parameters = new DialogParameters();
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+            };
+
+            var dialog = await DialogService.ShowAsync<CriarUsuario>("", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                NavigationManager.NavigateTo("/usuarios");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocorreu um error: " + ex.Message, Severity.Error);
+        }
+    }
+
+
+
+    private async Task EliminarUsuario(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters { ["UsuarioId"] = id };
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+            };
+
+            var dialog = await DialogService.ShowAsync<DeletarUsuario>("", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                Snackbar.Add("Usuario excluído com sucessp!", Severity.Success);
+                NavigationManager.NavigateTo("/usuarios");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Error ao excluir um usuário: " + ex.Message, Severity.Error);
+        }
+    }
+
+
+
+
+    // Editar um estudante
+    private async Task EditarUsuario(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters { ["UsuarioId"] = id };
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+            };
+
+            var dialog = await DialogService.ShowAsync<EditarUsuario>("", parameters, options);
+            var result = await dialog.Result;
+
+
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                Snackbar.Add("Usuário atualizado com sucesso!", Severity.Success);
+                NavigationManager.NavigateTo("/usuarios");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocorreu um error: " + ex.Message, Severity.Error);
+        }
+    }
+
+}

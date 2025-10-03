@@ -11,8 +11,8 @@ using SistemaBiblioteca.Data;
 namespace SistemaBiblioteca.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250922012509_InitialUsuario")]
-    partial class InitialUsuario
+    [Migration("20251003144132_InitialCriar")]
+    partial class InitialCriar
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
