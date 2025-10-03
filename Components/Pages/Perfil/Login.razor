@@ -7,17 +7,39 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
-<div class="mt-5">
-    <MudPaper Class="pa-6 mx-auto mt-12" MaxWidth="400px">
+<MudPaper Class="pa-8 mx-auto mt-12 rounded-lg elevation-6" MaxWidth="450px" >
 
-        <MudText Typo="Typo.h5" Class="mb-4">Login</MudText>
-        <MudTextField @bind-Value="login.Email" Label="Email" Required="true" />
+    <MudText Typo="Typo.h4" Class="mb-6 text-center" Color="Color.Primary">Seja bem-vindo!</MudText>
 
-        <MudTextField @bind-Value="login.Password" Label="Senha" InputType="InputType.Password" Required="true" />
-        <MudButton OnClick="HandleLogin" Color="Color.Primary" Class="mt-4" FullWidth="true">Entrar</MudButton>
 
-    </MudPaper>
-</div>
+    <MudText Typo="Typo.caption" Align="Align.Center" Class="mt-2 mb-5" Color="Color.Secondary">
+        Acesse o sistema com os seus dados.
+    </MudText>
+
+
+
+    <MudTextField @bind-Value="login.Email" Label="Email" Required="true" Class="mb-4 mt-5" Variant="Variant.Filled" />
+
+    <MudTextField @bind-Value="login.Password" Label="Senha" InputType="InputType.Password" Required="true" Class="mb-6" Variant="Variant.Filled" />
+
+    <MudButton OnClick="HandleLogin"
+               Color="Color.Success"
+               Variant="Variant.Filled"
+               Class="mb-2"
+               FullWidth="true"
+               Style="height:48px; min-width:100px; text-transform: none; font-weight: 600;  ">
+
+        <MudText Typo="Typo.body1">
+            Login
+        </MudText>
+        
+        
+        
+    </MudButton>
+
+</MudPaper>
+
+
 
 
 @code {

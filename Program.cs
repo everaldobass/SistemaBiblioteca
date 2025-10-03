@@ -23,7 +23,7 @@ namespace SistemaBiblioteca
             builder.Services.AddTransient<SeedDb>();
 
             builder.Services.AddScoped<LoginService>();
-            //builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
          
 

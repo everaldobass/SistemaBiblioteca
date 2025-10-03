@@ -1,15 +1,47 @@
-﻿@using SistemaBiblioteca.Models
-
-<MudDialog>
+﻿<MudDialog>
     <DialogContent>
-        <MudForm @ref="form" Model="@estudante" Class="pa-4">
-            <MudText Typo="Typo.h6">Criar Estudante</MudText>
-            <MudTextField @bind-Value="estudante.Nome" Label="Nome" Required="true" />
-            <MudTextField @bind-Value="estudante.Codigo" Label="Codigo" Required="true" />
-            <MudButton OnClick="@Cadastar" Color="Color.Primary">Cadastrar</MudButton>
+
+        <MudText Typo="Typo.h4"
+                 Class="mb-2 text-center"
+                 Color="Color.Primary"
+                 Style="font-weight:600;">
+            Editar Estudante
+        </MudText>
+
+        <MudDivider Class="mb-4" />
+
+        <MudForm @ref="form" Model="@estudante" Class="pa-6 rounded-lg">
+
+            <MudTextField @bind-Value="estudante.Nome"
+                          Label="Nome"
+                          Required="true"
+                          Variant="Variant.Filled"
+                          Class="mb-4" />
+
+            <MudTextField @bind-Value="estudante.Codigo"
+                          Label="Código"
+                          Required="true"
+                          Variant="Variant.Filled"
+                          Class="mb-6" />
+
+            <MudButton OnClick="@Cadastar"
+                       Color="Color.Secondary"
+                       Variant="Variant.Filled"
+                       FullWidth="true"
+                       Style="height:48px; text-transform: none; font-weight: 600;">
+
+
+                <MudText Typo="Typo.body1">
+                    Cadastrar
+                </MudText>
+
+
+            </MudButton>
+
         </MudForm>
     </DialogContent>
 </MudDialog>
+
 
 
 

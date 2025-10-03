@@ -1,12 +1,85 @@
 ﻿@page "/estudantes"
 
-@using SistemaBiblioteca.Models
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-10">
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-10 px-4">
+
+    <MudText Typo="Typo.h4" Class="text-center mb-6" Style="font-weight:600;">📋 Lista de Estudantes</MudText>
+
+    <MudButton OnClick="AdicionarEstudante"
+               Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.PersonAdd"
+               Style="height:45px; min-width:180px; font-weight:500; border-radius:5px;"
+               Class="mb-6">
+        Novo Estudante
+    </MudButton>
+
+    @if (loading)
+    {
+        <Loading />
+    }
+    else
+    {
+        <MudTable Items="@estudantes"
+                  Filter="new Func<Estudante, bool>(FilterFunc1)"
+                  Hover="true"
+                  Bordered="true"
+                  Striped="true"
+                  Dense="true"
+                  Style="min-height:400px;">
+
+            <ToolBarContent>
+                <MudTextField @bind-Value="filtro"
+                              Placeholder="Buscar por nome"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              IconSize="Size.Medium"
+                              Style=" border-radius:5px; padding-left:12px; height:60px;"
+                              Class="mt-4 mb-4"
+                              Margin="Margin.Dense" />
+            </ToolBarContent>
+
+            <HeaderContent>
+                <MudTh>Nome</MudTh>
+                <MudTh>Código</MudTh>
+                <MudTh>Ficha de Criação</MudTh>
+                <MudTh class="text-center">Ações</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd DataLabel="Nome">@context.Nome</MudTd>
+                <MudTd DataLabel="Código">@context.Codigo</MudTd>
+                <MudTd DataLabel="Ficha de Criação">@context.DataCriacao.ToString("dd/MM/yyyy")</MudTd>
+                <MudTd Class="d-flex justify-center gap-2">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Warning"
+                                   Size="Size.Medium"
+                                   OnClick="() => EditarEstudante(context.Id)"
+                                   Style="border-radius:4px;" />
+
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Size="Size.Medium"
+                                   OnClick="() => DeletarEstudante(context.Id)"
+                                   Style="border-radius:4px;" />
+                </MudTd>
+            </RowTemplate>
+
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    }
+</MudContainer>
+
+
+
+
+@* <MudContainer MaxWidth="MaxWidth.Large" Class="mt-10">
+
     <MudText Typo="Typo.h4" Class="text-center mb-6">Lista de Estudante</MudText>
-    <MudButton OnClick="AdicionarEstudante" Color="Color.Primary" EndIcon="@Icons.Material.Filled.Add" Class="mb-4">
-
-        Criar Estudante
+    <MudButton OnClick="AdicionarEstudante" Variant="Variant.Filled" Color="Color.Info" EndIcon="@Icons.Material.Filled.Save" Class="mb-4">
+        Novo Estudante
     </MudButton>
 
 
@@ -45,7 +118,7 @@
             </PagerContent>
         </MudTable>
     }
-</MudContainer>
+</MudContainer> *@
 
 
 

@@ -64,7 +64,7 @@ namespace SistemaBiblioteca.Services
         public async Task<T> GetByIdAsync(int id)
         {
             var entity = await _dbSet.FindAsync(id) ??
-                throw new ArgumentNullException(nameof(id), "El objeto no puede ser nulo.");
+                throw new ArgumentNullException(nameof(id), "Objeto não pode ser nulo.");
             return entity;
         }
 
