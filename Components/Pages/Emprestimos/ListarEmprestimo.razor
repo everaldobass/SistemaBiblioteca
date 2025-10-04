@@ -59,7 +59,7 @@
     private Emprestimo emprestimo = new Emprestimo();
 
     [Inject] private IRepository<Emprestimo> repository { get; set; } = null!;
-    [Inject] private IRepository<Livro> repositoryLibro { get; set; } = null!;
+    [Inject] private IRepository<Livro> repositoryLivro { get; set; } = null!;
     [Inject] private ISnackbar Snackbar { get; set; } = null!;
     [Inject] private NavigationManager NavigationManager { get; set; } = null!;
     [Inject] private IDialogService DialogService { get; set; } = null!;
@@ -197,11 +197,11 @@
     {
         try
         {
-            var livro = await repositoryLibro.GetByIdAsync(emprestimo.LibvroId);
+            var livro = await repositoryLivro.GetByIdAsync(emprestimo.LivroId);
             if (livro != null)
             {
                 livro.Quantidade++;
-                await repositoryLibro.UpdateAsync(livro);
+                await repositoryLivro.UpdateAsync(livro);
             }
         }
         catch (Exception ex)

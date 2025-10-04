@@ -11,8 +11,8 @@ using SistemaBiblioteca.Data;
 namespace SistemaBiblioteca.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20251003144132_InitialCriar")]
-    partial class InitialCriar
+    [Migration("20251004014614_InitialAtual")]
+    partial class InitialAtual
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,10 +53,7 @@ namespace SistemaBiblioteca.Migrations
                     b.Property<int>("EstudanteId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("LibvroId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("LivroId")
+                    b.Property<int>("LivroId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("StatusLivro")
@@ -171,7 +168,9 @@ namespace SistemaBiblioteca.Migrations
 
                     b.HasOne("SistemaBiblioteca.Models.Livro", "Livro")
                         .WithMany()
-                        .HasForeignKey("LivroId");
+                        .HasForeignKey("LivroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Estudante");
 

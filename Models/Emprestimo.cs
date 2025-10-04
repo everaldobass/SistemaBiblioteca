@@ -5,7 +5,7 @@
     {
         public int Id { get; set; }
 
-        public int LibvroId { get; set; }
+        public int LivroId { get; set; }
         public Livro? Livro { get; set; }
 
         public int EstudanteId { get; set; }

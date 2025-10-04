@@ -1,5 +1,87 @@
-﻿<h3>EditarEmprestimo</h3>
+﻿﻿﻿<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="@emprestimo" Class="pa-4">
+            <MudText Typo="Typo.h6">Atualizar o Emprestimo</MudText>
+            <MudSelect T="int" @bind-Value="emprestimo.EstudanteId" Label="Estudante" Required="true">
+
+                @if (estudantes != null)
+                {
+                    @foreach (var estudante in estudantes)
+                    {
+                        <MudSelectItem Value="@estudante.Id">@estudante.Nome</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudSelect T="int" @bind-Value="emprestimo.LivroId" Label="Livro" Required="true">
+                @if (livros != null)
+                {
+                    @foreach (var livro in livros)
+                    {
+                        <MudSelectItem Value="@livro.Id">@livro.Titulo</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudRadioGroup @bind-Value="SelectedOption">
+                <MudRadio Value="@("Pendente")">Pendente</MudRadio>
+                <MudRadio Value="@("Devolvido")">Devolvido</MudRadio>
+                <MudRadio Value="@("Vencido")">Vencido</MudRadio>
+            </MudRadioGroup>
+            <MudButton OnClick="@Cadastrar" Color="Color.Primary">Cadastrar</MudButton>
+        </MudForm>
+    </DialogContent>
+</MudDialog>
 
 @code {
 
+    [Parameter] public int EmprestimoId { get; set; }
+
+    private List<Estudante> estudantes = [];
+    private List<Livro> livros = [];
+    private Emprestimo emprestimo = new Emprestimo();
+    public string SelectedOption { get; set; } = string.Empty;
+
+    [Inject] private IRepository<Emprestimo> Repository { get; set; } = null!;
+    [Inject] private IRepository<Estudante> repositoryEstudante { get; set; } = null!;
+    [Inject] private IRepository<Livro> repositoryLivro { get; set; } = null!;
+
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    private MudForm form = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            estudantes = (await repositoryEstudante.GetAllAsync()).ToList();
+            livros = (await repositoryLivro.GetAllAsync()).ToList();
+            emprestimo = await Repository.GetByIdAsync(EmprestimoId);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocorreu error : " + ex.Message, Severity.Error);
+            MudDialog.Cancel();
+        }
+    }
+
+    private async Task Cadastrar()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                emprestimo.StatusLivro = SelectedOption;
+                await Repository.UpdateAsync(emprestimo);
+                MudDialog.Close(DialogResult.Ok(emprestimo));
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add("Ocorreu um error atualizar um emprestimo: " + ex.Message, Severity.Error);
+            }
+        }
+    }
 }

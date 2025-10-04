@@ -1,5 +1,97 @@
-﻿<h3>CriarEmprestimo</h3>
+﻿﻿<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="@emprestimo" Class="pa-4">
+            <MudText Typo="Typo.h6">Criar Emprestimo</MudText>
+            <MudSelect T="int" @bind-Value="emprestimo.EstudanteId" Label="Estudante" Required="true">
+                @if (estudantes != null)
+                {
+                    @foreach (var estudante in estudantes)
+                    {
+                        <MudSelectItem Value="@estudante.Id">@estudante.Nome</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudSelect T="int" @bind-Value="emprestimo.LivroId" Label="Livro" Required="true">
+                @if (livros != null)
+                {
+                    @foreach (var livro in livros)
+                    {
+                        <MudSelectItem Value="@livro.Id">@livro.Titulo</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudRadioGroup @bind-Value="SelectedOption">
+                <MudRadio Value="@("Pendente")">Pendente</MudRadio>
+                <MudRadio Value="@("Devolvido")">Devolvido</MudRadio>
+                <MudRadio Value="@("Vencido")">Vencido</MudRadio>
+            </MudRadioGroup>
+            <MudButton OnClick="@Cadastrar" Color="Color.Primary">Cadastrar</MudButton>
+        </MudForm>
+    </DialogContent>
+</MudDialog>
 
 @code {
+    private List<Estudante> estudantes = [];
+    private List<Livro> livros = [];
 
+    private Emprestimo emprestimo = new Emprestimo();
+    private MudForm form = null!;
+
+    public string SelectedOption { get; set; } = string.Empty;
+
+    [Inject] private IRepository<Emprestimo> repository { get; set; } = null!;
+    [Inject] private IRepository<Estudante> repositoryEstudante { get; set; } = null!;
+    [Inject] private IRepository<Livro> repositoryLivro { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        livros = (await repositoryLivro.GetAllAsync()).ToList();
+        estudantes = (await repositoryEstudante.GetAllAsync()).ToList();
+    }
+
+    private async Task Cadastrar()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                await ConfirmarInventario();
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error ao criar um Emprestimo: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private async Task ConfirmarInventario()
+    {
+        try
+        {
+            var libro = await repositoryLivro.GetByIdAsync(emprestimo.LivroId);
+            if (libro != null)
+            {
+                if (libro.Quantidade <= 0)
+                {
+                    Snackbar.Add("Não tem copias suficiente para emprestimo.", Severity.Error);
+                    return;
+                }
+                libro.Quantidade--;
+                await repositoryLivro.UpdateAsync(libro);
+                emprestimo.StatusLivro = SelectedOption;
+                await repository.AddAsync(emprestimo);
+                Snackbar.Add("Emprestimo criado com sucesso!.", Severity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error ao atualizar o inventario: {ex.Message}", Severity.Error);
+        }
+    }
 }

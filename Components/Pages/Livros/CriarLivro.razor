@@ -1,155 +1,58 @@
-﻿
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-10">
-    <MudText Typo="Typo.h4" Class="text-center mb-6">Lista de Libvos</MudText>
-    <MudButton OnClick="AgregarLibro" Color="Color.Primary" EndIcon="@Icons.Material.Filled.Add" Class="mb-4">
-        Criar livro
-    </MudButton>
-
-    @if (loading)
-    {
-        <Loading />
-    }
-    else
-    {
-        <MudTable Items="@livros" Filter="new Func<Livro, bool>(FilterFunc1)" Hover="true" Bordered="true" Striped="true" Dense="true">
-            <ToolBarContent>
-                <MudTextField @bind-Value="filtro" Placeholder="Buscar por nome"
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search"
-                              IconSize="Size.Medium"
-                              Class="mt-0" />
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh>Código</MudTh>
-                <MudTh>Título</MudTh>
-                <MudTh>Autor</MudTh>
-                <MudTh>Data Publicacao</MudTh>
-                <MudTh>Quantidade</MudTh>
-                <MudTh>Categoría</MudTh>
-                <MudTh></MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Código">@context.Codigo</MudTd>
-                <MudTd DataLabel="Título">@context.Titulo</MudTd>
-                <MudTd DataLabel="Autor">@context.Autor</MudTd>
-                <MudTd DataLabel="Data Publicacao">@context.DataPublicacao?.ToString("dd/MM/yyyy")</MudTd>
-                <MudTd DataLabel="Quantidade">@context.Quantidade</MudTd>
-                <MudTd DataLabel="Categoría">@context.Categoria?.Nome</MudTd>
-                <MudTd>
-                    <MudButton OnClick="() => EditarLibro(context.Id)" Color="Color.Warning" EndIcon="@Icons.Material.Filled.Edit">Editar</MudButton>
-                    <MudButton OnClick="() => EliminarLibro(context.Id)" Color="Color.Error" EndIcon="@Icons.Material.Filled.Delete">Excluir</MudButton>
-                </MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager />
-            </PagerContent>
-        </MudTable>
-    }
-</MudContainer>
-
+﻿<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="@livro" Class="pa-4">
+            <MudText Typo="Typo.h6">Criar Livro</MudText>
+            <MudTextField @bind-Value="livro.Titulo" Label="Título" Required="true" />
+            <MudTextField @bind-Value="livro.Codigo" Label="Código" Required="true" />
+            <MudTextField @bind-Value="livro.Autor" Label="Autor" Required="true" />
+            <MudDatePicker @bind-Date="_date" Label="Data Publicacao" />
+            <MudNumericField @bind-Value="livro.Quantidade" Label="Quantidade" Required="true" Min="1" />
+            <MudSelect T="int" @bind-Value="livro.CategoriaId" Label="Categoría" Required="true">
+                @if (categorias != null)
+                {
+                    @foreach (var categoria in categorias)
+                    {
+                        <MudSelectItem Value="@categoria.Id">@categoria.Nome</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudButton OnClick="@Cadastrar"Color ="Color.Primary">Cadastrar</MudButton>
+        </MudForm>
+    </DialogContent>
+</MudDialog>
 @code {
-    private List<Livro> livros = new();
-    private string filtro = string.Empty;
-    private bool loading = true;
+    private Livro livro = new Livro();
+    private List<Categoria> categorias = [];
+    private MudForm form = null!;
+    private DateTime? _date = DateTime.Today;
 
     [Inject] private IRepository<Livro> repository { get; set; } = null!;
+    [Inject] private IRepository<Categoria> repositoryCategoria { get; set; } = null!;
     [Inject] private ISnackbar Snackbar { get; set; } = null!;
     [Inject] private NavigationManager NavigationManager { get; set; } = null!;
-    [Inject] private IDialogService DialogService { get; set; } = null!;
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
-        loading = true;
-        var datos = await repository.GetAllWithIncludesAsync(x => x.Categoria!);
-        livros = datos.ToList();
-        loading = false;
+        categorias = (await repositoryCategoria.GetAllAsync()).ToList();
     }
 
-    private bool FilterFunc1(Livro libro)
+    private async Task Cadastrar()
     {
-        return string.IsNullOrEmpty(filtro) || libro.Titulo.Contains(filtro, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private async Task AgregarLibro()
-    {
-        try
+        await form.Validate();
+        if (form.IsValid)
         {
-            var parameters = new DialogParameters();
-            var options = new DialogOptions
+            try
             {
-                CloseButton = true,
-                MaxWidth = MaxWidth.Small,
-                FullWidth = true,
-            };
-
-            var dialog = await DialogService.ShowAsync<CriarLivro>("", parameters, options);
-            var result = await dialog.Result;
-
-            if (!result!.Canceled)
-            {
-                await OnInitializedAsync();
-                NavigationManager.NavigateTo("/livros");
+                livro.DataPublicacao = _date;
+                await repository.AddAsync(livro);
+                Snackbar.Add("Livro criado com sucesso.", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
             }
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add("Ocorreu um error: " + ex.Message, Severity.Error);
-        }
-    }
-
-    private async Task EditarLibro(int id)
-    {
-        try
-        {
-            var parameters = new DialogParameters { ["LivroId"] = id };
-            var options = new DialogOptions
+            catch (Exception ex)
             {
-                CloseButton = true,
-                MaxWidth = MaxWidth.Small,
-                FullWidth = true,
-            };
-
-            var dialog = await DialogService.ShowAsync<EditarLivro>("", parameters, options);
-            var result = await dialog.Result;
-
-            if (!result!.Canceled)
-            {
-                await OnInitializedAsync();
-                Snackbar.Add("Libro actualizado exitosamente!", Severity.Success);
-                NavigationManager.NavigateTo("/livros");
+                Snackbar.Add($"Error ao criar um livro: {ex.Message}", Severity.Error);
             }
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add("Ocorreu um error: " + ex.Message, Severity.Error);
-        }
-    }
-
-    private async Task EliminarLibro(int id)
-    {
-        try
-        {
-            var parameters = new DialogParameters { ["LivroId"] = id };
-            var options = new DialogOptions
-            {
-                CloseButton = true,
-                MaxWidth = MaxWidth.Small,
-                FullWidth = true,
-            };
-
-            var dialog = await DialogService.ShowAsync<DeletarLivro>("", parameters, options);
-            var result = await dialog.Result;
-
-            if (!result!.Canceled)
-            {
-                await OnInitializedAsync();
-                Snackbar.Add("Livro deletaro com sucesso!", Severity.Success);
-                NavigationManager.NavigateTo("/livros");
-            }
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add("Ocorreu um error: " + ex.Message, Severity.Error);
         }
     }
 }

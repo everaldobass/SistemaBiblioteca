@@ -17,7 +17,7 @@ namespace SistemaBiblioteca.Data
         {
             await _context.Database.MigrateAsync();
             await CheckCategoriasAsync();
-            await CheckUsersAsync("everaldo", "everaldo@gmail.com", "Dev@1020", "administrador");
+            await CheckUsersAsync("admin", "admin@gmail.com", "admin@2025", "administrador");
         }
 
         private async Task<Usuario> CheckUsersAsync(string nome, string email, string password, string perfil)
@@ -48,7 +48,7 @@ namespace SistemaBiblioteca.Data
                 _context.Categorias.AddRange(
                     new Categoria { Nome = "Developer" },
                     new Categoria { Nome = "Programador" },
-                    new Categoria { Nome = "IA" }
+                    new Categoria { Nome = "Inteligencia" }
                 );
                 await _context.SaveChangesAsync();
             }

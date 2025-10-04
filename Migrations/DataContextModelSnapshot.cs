@@ -50,10 +50,7 @@ namespace SistemaBiblioteca.Migrations
                     b.Property<int>("EstudanteId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("LibvroId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("LivroId")
+                    b.Property<int>("LivroId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("StatusLivro")
@@ -168,7 +165,9 @@ namespace SistemaBiblioteca.Migrations
 
                     b.HasOne("SistemaBiblioteca.Models.Livro", "Livro")
                         .WithMany()
-                        .HasForeignKey("LivroId");
+                        .HasForeignKey("LivroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Estudante");
 

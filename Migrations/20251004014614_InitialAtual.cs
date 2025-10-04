@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SistemaBiblioteca.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCriar : Migration
+    public partial class InitialAtual : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -88,8 +88,7 @@ namespace SistemaBiblioteca.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    LibvroId = table.Column<int>(type: "INTEGER", nullable: false),
-                    LivroId = table.Column<int>(type: "INTEGER", nullable: true),
+                    LivroId = table.Column<int>(type: "INTEGER", nullable: false),
                     EstudanteId = table.Column<int>(type: "INTEGER", nullable: false),
                     DataEmprestimo = table.Column<DateTime>(type: "TEXT", nullable: false),
                     DataDevolucao = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -108,7 +107,8 @@ namespace SistemaBiblioteca.Migrations
                         name: "FK_Emprestimos_Livros_LivroId",
                         column: x => x.LivroId,
                         principalTable: "Livros",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
